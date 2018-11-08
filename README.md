@@ -1,12 +1,13 @@
-Translator: pan93412 at 2018.11.08
+## 翻譯資訊 Translation Info
+Translator: pan93412 at 2018.11.08<br/>
 翻譯者：pan93412 於 2018 年 11 月 8 日
 
-## 為什麼要發布？ (翻譯進度：10%)
-我喜歡 VirtualBox 且這跟我發佈這 0day 漏洞的原因無關。原因是與資訊安全的現代狀態發生衝突有關，特別是安全研究與漏洞獎勵：
+## 為什麼要發布？ (翻譯進度：20%)
+我喜歡 VirtualBox 且這跟我發佈這 0day 漏洞的原因無關。原因是與資訊安全的現代狀態發生衝突有關，特別是安全研究與漏洞獎金：
 
-1) Wait half a year until a vulnerability is patched is considered fine.
-2) In the bug bounty field these are considered fine:
-    1) Wait more than month until a submitted vulnerability is verified and a decision to buy or not to buy is made.
+1) 等到半年，直到漏洞已確保是良好的。
+2) 在漏洞獎金欄位中，這些也要確保是良好的：
+    1) 等至少一個月，直到提交的漏洞已被核可且(他們)決定要購買還是不購買這個漏洞。
     2) Change the decision on the fly. Today you figured out the bug bounty program will buy bugs in a software, week later you come with bugs and exploits and receive "not interested".
     3) Have not a precise list of software a bug bounty is interested to buy bugs in. Handy for bug bounties, awkward for researchers.
     4) Have not precise lower and upper bounds of vulnerability prices. There are many things influencing a price but researchers need to know what is worth to work on and what is not.
