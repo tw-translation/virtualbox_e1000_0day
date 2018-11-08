@@ -1,5 +1,8 @@
-## Why
-I like VirtualBox and it has nothing to do with why I publish a 0day vulnerability. The reason is my disagreement with contemporary state of infosec, especially of security research and bug bounty:
+Translator: pan93412 at 2018.11.08
+翻譯者：pan93412 於 2018 年 11 月 8 日
+
+## 為什麼要發布？ (翻譯進度：10%)
+我喜歡 VirtualBox 且這跟我發佈這 0day 漏洞的原因無關。原因是與資訊安全的現代狀態發生衝突有關，特別是安全研究與漏洞獎勵：
 
 1) Wait half a year until a vulnerability is patched is considered fine.
 2) In the bug bounty field these are considered fine:
@@ -11,24 +14,24 @@ I like VirtualBox and it has nothing to do with why I publish a 0day vulnerabili
 
 I'm exhausted of the first two, therefore my move is full disclosure. Infosec, please move forward.
 
-## General Information
-**Vulnerable software:** VirtualBox 5.2.20 and prior versions.
+## 基本資訊 (翻譯進度：100%)
+**發現漏洞的軟體：** VirtualBox 5.2.20 或更早版本。
 
-**Host OS:** any, the bug is in a shared code base.
+**主機端系統：** 皆能，且漏洞存在於共享程式碼庫中。
 
-**Guest OS:** any.
+**客戶端系統：** 皆能。
 
-**VM configuration:** default (the only requirement is that a network card is Intel PRO/1000 MT Desktop (82540EM) and a mode is NAT).
+**VM 設定：** 預設值 (唯一的需求就是網卡要是 Intel PRO/1000 MT Desktop (82540EM) 且模式是 NAT)。
 
-## How to protect yourself
-Until the patched VirtualBox build is out you can change the network card of your virtual machines to PCnet (either of two) or to Paravirtualized Network. If you can't, change the mode from NAT to another one. The former way is more secure.
+## 怎麼保護自己免受攻擊？ (翻譯進度：100%)
+在修正過的 VirtualBox 編譯版本出來前，您能將您虛擬主機的網卡改成 (兩者任一) PCnet 或半虛擬化網路。如果不能則將 NAT 改成其他模式。前者比較安全。
 
-## Introduction
-A default VirtualBox virtual network device is Intel PRO/1000 MT Desktop (82540EM) and the default network mode is NAT. We will refer to it E1000.
+## 介紹 (翻譯進度：100%)
+預設 VirtualBox 的網路裝置是 Intel PRO/1000 MT Desktop (82540EM) 且預設網路模式為 NAT。我們將會將其稱呼為 E1000。
 
-The E1000 has a vulnerability allowing an attacker with root/administrator privileges in a guest to escape to a host ring3. Then the attacker can use existing techniques to escalate privileges to ring 0 via /dev/vboxdrv.
+E1000 包含了一個允許攻擊者使用客端的 root (或管理員 administrator) 權限跳脫到主機的 ring3 模式的漏洞。然後攻擊者就能使用現有的技術透過 /dev/vboxdrv 來提升權限到 ring 0。
 
-## Vulnerability Details
+## 漏洞詳細資訊 (內文翻譯進度：0%；標題翻譯進度：5%)
 
 ### E1000 101
 To send network packets a guest does what a common PC does: it configures a network card and supplies network packets to it. Packets are of data link layer frames and of other, more high level headers. Packets supplied to the adaptor are wrapped in Tx descriptors (Tx means transmit). The Tx descriptor is data structure described in the 82540EM datasheet (317453006EN.PDF, Revision 4.0). It stores such metainformation as packet size, VLAN tag, TCP/IP segmentation enabled flags and so on.
@@ -37,7 +40,7 @@ The 82540EM datasheet provides for three Tx descriptor types: legacy, context, d
 
 To supply Tx descriptors to the network card a guest writes them to Tx Ring. This is a ring buffer residing in physical memory at a predefined address. When all descriptors are written down to Tx Ring the guest updates E1000 MMIO TDT register (Transmit Descriptor Tail) to tell the host there are new descriptors to handle.
 
-### Input
+### 輸入
 Consider the following array of Tx descriptors:
 
 ```
@@ -864,5 +867,5 @@ Data structure being overwritten is a linked list. Data to be overwritten is in 
 
 Getting rid of the last two elements allows the virtual machine to shut down smoothly.
 
-## Demo
+## 示範
 https://vimeo.com/299325088
