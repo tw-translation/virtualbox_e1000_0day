@@ -3,9 +3,9 @@ Translator: pan93412 at 2018.11.08<br/>
 翻譯者：pan93412 於 2018 年 11 月 8 日
 
 ## 為什麼要發布？ (翻譯進度：20%)
-我喜歡 VirtualBox 且這跟我發佈這 0day 漏洞的原因無關。原因是與資訊安全的現代狀態發生衝突有關，特別是安全研究與漏洞獎金：
+我愛用 VirtualBox，但這與我發佈這 0day 漏洞這件事無關。僅是因現代資訊安全與我觀念發生衝突，特別是安全研究與漏洞獎金：
 
-1) 等到半年，直到漏洞已確保是良好的。
+1) 等待半年，直到漏洞已確保是良好的。
 2) 在漏洞獎金欄位中，這些也要確保是良好的：
     1) 等至少一個月，直到提交的漏洞已被核可且(他們)決定要購買還是不購買這個漏洞。
     2) Change the decision on the fly. Today you figured out the bug bounty program will buy bugs in a software, week later you come with bugs and exploits and receive "not interested".
@@ -18,19 +18,19 @@ I'm exhausted of the first two, therefore my move is full disclosure. Infosec, p
 ## 基本資訊 (翻譯進度：100%)
 **發現漏洞的軟體：** VirtualBox 5.2.20 或更早版本。
 
-**主機端系統：** 皆能，且漏洞存在於共享程式碼庫中。
+**主機端系統：** 皆適用，且漏洞存在於共享程式碼庫中。
 
-**客戶端系統：** 皆能。
+**客戶端系統：** 皆適用。
 
-**VM 設定：** 預設值 (唯一的需求就是網卡要是 Intel PRO/1000 MT Desktop (82540EM) 且模式是 NAT)。
+**VM 設定：** 預設值 (僅要求網卡為 Intel PRO/1000 MT Desktop (82540EM) 且處於 NAT 模式)。
 
 ## 怎麼保護自己免受攻擊？ (翻譯進度：100%)
-在修正過的 VirtualBox 編譯版本出來前，您能將您虛擬主機的網卡改成 (兩者任一) PCnet 或半虛擬化網路。如果不能則將 NAT 改成其他模式。前者比較安全。
+在修正過的 VirtualBox 編譯版本出來前，您能將虛擬主機的網卡改為（兩者任一）PCnet 或半虛擬化網路。若無法實現才將 NAT 改將其他模式。前者較安全。
 
 ## 介紹 (翻譯進度：100%)
-預設 VirtualBox 的網路裝置是 Intel PRO/1000 MT Desktop (82540EM) 且預設網路模式為 NAT。我們將會將其稱呼為 E1000。
+預設 VirtualBox 的網路裝置是 Intel PRO/1000 MT Desktop (82540EM) 且預設網路模式為 NAT。這裡稱為 E1000。
 
-E1000 包含了一個允許攻擊者使用客端的 root (或管理員 administrator) 權限跳脫到主機的 ring3 模式的漏洞。然後攻擊者就能使用現有的技術透過 /dev/vboxdrv 來提升權限到 ring 0。
+E1000 包含允許攻擊者使用客戶端 root（或管理員 administrator）權限跳脫到主機 ring3 模式的漏洞。攻擊者就能使用現有的技術透過 /dev/vboxdrv 來提升權限到 ring 0。
 
 ## 漏洞詳細資訊 (內文翻譯進度：0%；標題翻譯進度：5%)
 
