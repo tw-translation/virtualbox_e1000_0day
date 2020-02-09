@@ -32,7 +32,7 @@ I'm exhausted of the first two, therefore my move is full disclosure. Infosec, p
 
 E1000 包含允許攻擊者使用客戶端 root（或管理員 administrator）權限跳脫到主機 ring3 模式的漏洞。攻擊者就能使用現有的技術透過 /dev/vboxdrv 來提升權限到 ring 0。
 
-## 漏洞詳細資訊 (內文翻譯進度：0%；標題翻譯進度：5%)
+## 漏洞詳細資訊 (內文翻譯進度：0%；標題翻譯進度：75%)
 
 ### E1000 101
 To send network packets a guest does what a common PC does: it configures a network card and supplies network packets to it. Packets are of data link layer frames and of other, more high level headers. Packets supplied to the adaptor are wrapped in Tx descriptors (Tx means transmit). The Tx descriptor is data structure described in the 82540EM datasheet (317453006EN.PDF, Revision 4.0). It stores such metainformation as packet size, VLAN tag, TCP/IP segmentation enabled flags and so on.
@@ -74,9 +74,9 @@ data_5.tcp_segmentation_enabled = true
 
 We will learn why they should be like that in our step-by-step analysis.
 
-### Root Cause Analysis
+### 根本原因分析
 
-#### [context_1, data_2, data_3] Processing
+#### [context_1, data_2, data_3] 處理
 Let's assume the descriptors above are written to the Tx Ring in the specified order and TDT register is updated by the guest. Now the host will execute e1kXmitPending function in src/VBox/Devices/Network/DevE1000.cpp file (most of comments are and will be stripped for the sake of readability):
 
 ```c
@@ -271,7 +271,7 @@ uint32_t cb = u16MaxPktLen - pThis->u16TxPktLen;
 
 But we are able to bypass this protection: recall that in e1kLocateTxPacket we forced the function to return because of data_3.end_of_packet == true. And because of that we have two descriptors (context_4 and data_5) left to be processed despite the fact that pThis->u16TxPktLen is 0x10, not 0. So there is a possibility to change u16MaxPktLen using context_4.maximum_segment_size to make the integer underflow.
 
-#### [context_4, data_5] Processing
+#### [context_4, data_5] 處理
 Now when the first three descriptors were processed we again arrive to the inner loop of e1kXmitPending:
 
 ```c
@@ -340,7 +340,7 @@ DECLINLINE(void) e1kUpdateTxContext(PE1KSTATE pThis, E1KTXDESC *pDesc)
         }
 ```
 
-### Buffer Overflow
+### 緩衝區溢出
 We have called e1kFallbackAddSegment with size 0x4188. How this can be abused? There are at least two possibilities I found. Firstly, data will be read from the guest into a heap buffer:
 
 ```c
@@ -371,7 +371,7 @@ static int e1kHandleRxPacket(PE1KSTATE pThis, const void *pvBuf, size_t cb, E1KR
 
 As you see, we turned an integer underflow to a classical stack buffer overflow. The two overflows above — heap and stack ones — are used in the exploit.
 
-## Exploit
+## 入侵
 The exploit is Linux kernel module (LKM) to load in a guest OS. The Windows case would require a driver differing from the LKM just by an initialization wrapper and kernel API calls.
 
 Elevated privileges are required to load a driver in both OSs. It's common and isn't considered an insurmountable obstacle. Look at Pwn2Own contest where researcher use exploit chains: a browser opened a malicious website in the guest OS is exploited, a browser sandbox escape is made to gain full ring 3 access, an operating system vulnerability is exploited to pave a way to ring 0 from where there are anything you need to attack a hypervisor from the guest OS.
@@ -379,7 +379,7 @@ The most powerful hypervisor vulnerabilities are for sure those that can be expl
 
 The exploit is 100% reliable. It means it either works always or never because of mismatched binaries or other, more subtle reasons I didn't account. It works at least on Ubuntu 16.04 and 18.04 x86_64 guests with default configuration.
 
-### Exploitation Algorithm
+### 入侵演算法
 1) An attacker unloads e1000.ko loaded by default in Linux guests and loads the exploit's LKM.
 2) The LKM initializes E1000 according to the datasheet. Only the transmit half is initialized since there is no need for the receive half.
 3) Step 1: information leak.
@@ -399,7 +399,7 @@ The exploit is 100% reliable. It means it either works always or never because o
     3) The parent process does process continuation.
 6) The attacker unloads the LKM and loads e1000.ko back to allow the guest to use network.
 
-### Initialization
+### 初始化
 The LKM maps physical memory regarding to E1000 MMIO. Physical address and size are predefined by the hypervisor.
 
 ```c
@@ -440,7 +440,7 @@ void e1000_init(void* mmio) {
 }
 ```
 
-### ASLR Bypass
+### ASLR 繞過
 #### Write primitive
 From the beginning of exploit development I decided not to use primitives found in services disabled by default. This means in the first place the Chromium service (not a browser) that provides for 3D acceleration where more than 40 vulnerabilities are found by researchers in the last year.
 
@@ -667,7 +667,7 @@ $2 = 0x1f9dc6
 
 It seems there is a pointer to a string placed at a fixed offset from VBoxDD.so image base. The pointer lies at 0x58 offset at the end of ACPIState. We can read that pointer byte-by-byte using the primitives and finally obtain VBoxDD.so image base. We just hope that data past ACPIState structure is not random on each virtual machine boot. Hopefully, it isn't; the pointer at 0x58 offset is always there.
 
-#### Information Leak
+#### 資訊洩漏
 Now we combine write and read primitives and exploit them to bypass ASLR. We will overflow the heap overwriting EEPROM93C46 structure, then trigger EEPROM finite automaton to write the index to ACPIState structure, and then execute INB(0x4107) in the guest to access ACPI to read one byte of the pointer. Repeat those 8 times incrementing the index by 1.
 
 ```c
@@ -702,7 +702,7 @@ uint64_t stage_1_main(void* mmio, void* tx_ring) {
 
 It has been said that in order for the integer underflow not to lead to the stack buffer overflow, certain E1000 registers should been configured. The idea is that the buffer is being overflowed in e1kHandleRxPacket function which is called while handling Tx descriptors in the loopback mode. Indeed, in the loopback mode the guest sends network packets to itself so they are received right after being sent. We disable this mode so e1kHandleRxPacket is unreachable.
 
-### DEP Bypass
+### DEP 繞過
 We have bypassed ASLR. Now the loopback mode can be enabled and the stack buffer overflow can be triggered.
 
 ```c
